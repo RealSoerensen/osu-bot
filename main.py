@@ -2,31 +2,37 @@ import cv2 as cv
 import numpy as np
 import mss
 from win32con import MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP
-from win32gui import FindWindow, GetWindowRect
 from win32api import SetCursorPos, mouse_event
-from time import sleep
 from multiprocessing import Process, Pipe
 from keyboard import is_pressed
+from time import sleep
 
+ar = input("Enter the AR for the map: ")
 
-def windowSize():
+def ar_calculation(ar_input):
     try:
-        hwnd = FindWindow(None, "osu!")
-        rect = GetWindowRect(hwnd)
-        return rect
+        ar_input = ar_input.split(".")
+        ar_input.remove(".")
     except Exception:
-        print("Failed to find width and height of osu!.\n Please make sure osu! is open in windowed or fullscreen "
-              "windowed")
-        sleep(3)
+        pass
+    ar_input[0] = int(ar_input[0])
+    ar_input[1] = int(ar_input[1])
+
+    if ar_input[0] <= 4:
+        try:
+            return ((1800 - ar_input[1]*120) - (120 / 10 * ar_input[1])) / 100
+        finally:
+            return 1800 / 100
+    elif ar_input[0] >= 5:
+            return ((1200 - ar_input[1]*150) - (150 / 10 * ar_input[1])) / 100
 
 
-top, left, width, height = windowSize()
-window = {"top": top, "left": left, "width": width, "height": height}
+window = {"top": 0, "left": 0, "width": 1920, "height": 1080}
 sct = mss.mss()
-
 
 def click(x, y):
     SetCursorPos((x, y))
+    sleep(ar_calculation(ar))
     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
     mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)
 
@@ -46,7 +52,8 @@ def detecting(p_output, p_input2):
         image = p_output.recv()
         # Convert to grayscale
         gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-        circles = cv.HoughCircles(gray, cv.HOUGH_GRADIENT, minDist=1, dp=1.2, param1=150, param2=110, minRadius=30, maxRadius=100)
+        circles = cv.HoughCircles(gray, cv.HOUGH_GRADIENT, minDist=1, dp=1.2, param1=150, param2=110, minRadius=30,
+                                  maxRadius=100)
         if circles is not None:
             # convert the (x, y) coordinates and radius of the circles to integers
             circles = np.uint16(np.around(circles))
@@ -72,6 +79,7 @@ def showImage(p_output2):
 
 
 if __name__ == "__main__":
+    print(ar_calculation(ar))
     # Pipes
     p_output, p_input = Pipe()
     p_output2, p_input2 = Pipe()
