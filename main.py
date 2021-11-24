@@ -7,7 +7,6 @@ from multiprocessing import Process, Pipe
 from keyboard import is_pressed
 from time import sleep
 
-ar = input("Enter the AR for the map: ")
 
 def ar_calculation(ar_input):
     try:
@@ -20,15 +19,12 @@ def ar_calculation(ar_input):
 
     if ar_input[0] <= 4:
         try:
-            return ((1800 - ar_input[1]*120) - (120 / 10 * ar_input[1])) / 100
+            return ((1800 - ar_input[1] * 120) - (120 / 10 * ar_input[1])) / 100
         finally:
             return 1800 / 100
     elif ar_input[0] >= 5:
-            return ((1200 - ar_input[1]*150) - (150 / 10 * ar_input[1])) / 100
+        return ((1200 - ar_input[1] * 150) - (150 / 10 * ar_input[1])) / 100
 
-
-window = {"top": 0, "left": 0, "width": 1920, "height": 1080}
-sct = mss.mss()
 
 def click(x, y):
     SetCursorPos((x, y))
@@ -38,6 +34,8 @@ def click(x, y):
 
 
 def grabImage(p_input):
+    window = {"top": 0, "left": 0, "width": 1920, "height": 1080}
+    sct = mss.mss()
     while True:
         # Grab screen image
         image = np.asarray(sct.grab(window))
@@ -79,7 +77,6 @@ def showImage(p_output2):
 
 
 if __name__ == "__main__":
-    print(ar_calculation(ar))
     # Pipes
     p_output, p_input = Pipe()
     p_output2, p_input2 = Pipe()
@@ -93,3 +90,4 @@ if __name__ == "__main__":
     p1.start()
     p2.start()
     p3.start()
+    ar = input("Enter the AR for the map: ")
