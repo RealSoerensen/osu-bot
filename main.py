@@ -8,33 +8,16 @@ from keyboard import is_pressed
 from time import sleep
 
 
-def ar_calculation(ar_input):
-    try:
-        ar_input = ar_input.split(".")
-        ar_input.remove(".")
-    except Exception:
-        pass
-    ar_input[0] = int(ar_input[0])
-    ar_input[1] = int(ar_input[1])
-
-    if ar_input[0] <= 4:
-        try:
-            return ((1800 - ar_input[1] * 120) - (120 / 10 * ar_input[1])) / 100
-        finally:
-            return 1800 / 100
-    elif ar_input[0] >= 5:
-        return ((1200 - ar_input[1] * 150) - (150 / 10 * ar_input[1])) / 100
-
-
 def click(x, y):
+    # Move cursor to the provided x, y coordinates
     SetCursorPos((x, y))
-    sleep(ar_calculation(ar))
+    # Press mouse1
     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
     mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)
 
 
 def grabImage(p_input):
-    window = {"top": 0, "left": 0, "width": 1920, "height": 1080}
+    window = {"top": 0, "left": 0, "width": 720, "height": 1080}
     sct = mss.mss()
     while True:
         # Grab screen image
@@ -50,18 +33,21 @@ def detecting(p_output, p_input2):
         image = p_output.recv()
         # Convert to grayscale
         gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-        circles = cv.HoughCircles(gray, cv.HOUGH_GRADIENT, minDist=1, dp=1.2, param1=150, param2=110, minRadius=30,
-                                  maxRadius=100)
+        circles = cv.HoughCircles(gray, cv.HOUGH_GRADIENT, dp=1.2, minDist=1, param2=130, minRadius=0, maxRadius=150)
         if circles is not None:
             # convert the (x, y) coordinates and radius of the circles to integers
             circles = np.uint16(np.around(circles))
             # loop over the (x, y) coordinates and radius of the circles
-            for (x, y, r) in circles[0, :]:
-                # draw the circle in the output image, then draw a rectangle
-                # corresponding to the center of the circle
+            for index, (x, y, r) in enumerate(circles[0, :]):
+                # loop over the (x, y) coordinates and radius of the circles again
+                for x2, y2, r2 in circles[0, :][index+1:]:
+                    # Check if first cicle matches second cicle
+                    if x-10 <= x2 <= x+10 and y-10 <= y2 <= y+10 and r-2 <= r2 <= r+2:
+                        # Click on cicle
+                        click(x, y)
+                # draw the circle in the output image
                 cv.circle(image, (x, y), r, (0, 255, 0), 4)
-                if is_pressed("v"):
-                    click(round(x * 2.5), round(y * 2.5))
+        # Send the image with circles to showImage
         p_input2.send(image)
 
 
@@ -90,4 +76,3 @@ if __name__ == "__main__":
     p1.start()
     p2.start()
     p3.start()
-    ar = input("Enter the AR for the map: ")
