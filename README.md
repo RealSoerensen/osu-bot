@@ -1,6 +1,6 @@
 # osu!bot
 
-osu! bot can automatic detect the circles and approach circle with AI. It will click when the radius of the 2 circles is within 5 pixels.
+osu!bot can automatic detect the circles and approach circle with AI. It will click when the radius of the 2 circles is within 5 pixels.
 
 ## Installation
 
