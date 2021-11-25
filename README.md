@@ -1,4 +1,4 @@
-# osu-Bot
+# osu!bot
 
 osu! bot can automatic detect the circles and approach circle with AI. It will click when the radius of the 2 circles is within 5 pixels.
 
@@ -10,7 +10,7 @@ Run the "setup.bat"-file to install the neccessary libraries.
 
 First open osu! and change your display mode to fullscreen windowed and disable raw input.
 
-Then run the "osu-Bot.py"-script.
+Then run the "main.py"-script.
 
 ## Caution
 
